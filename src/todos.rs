@@ -13,7 +13,7 @@ impl Todo {
         let mut content = String::new();
         for (k, v) in self.map {
             let record = format!("{}\t{}\n", k, v);
-            content.push_str(&record)
+            content.push_str(&record)   
         }
 
         std::fs::write("db.txt", content)
@@ -38,5 +38,12 @@ impl Todo {
             .collect();
 
         Ok(Todo { map })
+    }
+
+    pub fn complete(&mut self, item: &String) -> Option<()> {
+        match self.map.get_mut(item) {
+            Some(v) => Some(*v = false),
+            None => None
+        }
     }
 }

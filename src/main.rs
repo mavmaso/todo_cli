@@ -1,16 +1,35 @@
-mod extra;
+mod todos;
+
+use todos::Todo;
 
 fn main() {
     let action = std::env::args().nth(1).expect("Please type a action");
     let item = std::env::args().nth(2).expect("Plase type an item");
 
-    let mut todo = extra::Todo::new().expect("Failed to create db.txt");
+    let todo = todos::Todo::new().expect("Failed to create db.txt");
 
-    if action == "add" {
-        todo.insert(item);
-        match todo.save() {
-            Ok(_) => println!("item saved"),
-            Err(why) => println!("Error: {}", why),
-        }
+    match action.as_str() {
+        "add" => add_action(todo, item),
+        "complete" => complete_action(todo, &item),
+        _ => ()
+    }
+}
+
+fn add_action(mut todo: Todo, item: String) {
+    todo.insert(item);
+    save_in(todo, "item saved")
+}
+
+fn complete_action(mut todo: Todo, item: &String) {
+    match todo.complete(&item) {
+        None => println!("'{}' not found", item),
+        Some(_) => save_in(todo, "item completed")
+    }
+}
+
+fn save_in(todo: Todo, msg: &str) {
+    match todo.save() {
+        Ok(_) => println!("{}", msg),
+        Err(why) => println!("Error: {}", why),
     }
 }
