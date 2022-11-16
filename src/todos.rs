@@ -1,4 +1,4 @@
-use std::{collections::HashMap, io::Read};
+use std::{collections::HashMap};
 
 pub struct Todo {
     map: HashMap<String, bool>,
@@ -10,40 +10,35 @@ impl Todo {
     }
 
     pub fn save(self) -> Result<(), std::io::Error> {
-        let mut content = String::new();
-        for (k, v) in self.map {
-            let record = format!("{}\t{}\n", k, v);
-            content.push_str(&record)   
-        }
+        let f = std::fs::OpenOptions::new()
+            .write(true)
+            .create(true)
+            .truncate(true)
+            .open("db.json")?;
+        
+        serde_json::to_writer_pretty(f, &self.map)?;
 
-        std::fs::write("db.txt", content)
+        Ok(())
     }
 
     pub fn new() -> Result<Todo, std::io::Error> {
-        let mut f = std::fs::OpenOptions::new()
+        let f = std::fs::OpenOptions::new()
             .write(true)
             .create(true)
             .read(true)
-            .open("db.txt")?;
+            .open("db.json")?;
 
-        let mut content = String::new();
-
-        f.read_to_string(&mut content)?;
-
-        let map: HashMap<String, bool> = content
-            .lines()
-            .map(|line| line.splitn(2, '\t').collect::<Vec<&str>>())
-            .map(|v| (v[0], v[1]))
-            .map(|(k, v)| (String::from(k), v.parse().unwrap()))
-            .collect();
-
-        Ok(Todo { map })
+        match serde_json::from_reader(f) {
+            Ok(map) => Ok(Todo { map }),
+            Err(e) if e.is_eof() => Ok(Todo {map: HashMap::new()}),
+            Err(e) => panic!("An error occurred: {}", e),
+        }
     }
 
     pub fn complete(&mut self, item: &String) -> Option<()> {
         match self.map.get_mut(item) {
             Some(v) => Some(*v = false),
-            None => None
+            None => None,
         }
     }
 }

@@ -6,12 +6,12 @@ fn main() {
     let action = std::env::args().nth(1).expect("Please type a action");
     let item = std::env::args().nth(2).expect("Plase type an item");
 
-    let todo = todos::Todo::new().expect("Failed to create db.txt");
+    let todo = Todo::new().expect("Failed to create db");
 
     match action.as_str() {
         "add" => add_action(todo, item),
         "complete" => complete_action(todo, &item),
-        _ => ()
+        _ => (),
     }
 }
 
@@ -22,8 +22,8 @@ fn add_action(mut todo: Todo, item: String) {
 
 fn complete_action(mut todo: Todo, item: &String) {
     match todo.complete(&item) {
-        None => println!("'{}' not found", item),
-        Some(_) => save_in(todo, "item completed")
+        None => println!("item: '{}' not found", item),
+        Some(_) => save_in(todo, "item completed"),
     }
 }
 

@@ -27,7 +27,9 @@ fn complete_action_works() {
     let mut cmd = Command::cargo_bin("todo_cli").unwrap();
 
     cmd.arg("complete").arg("algo");
-    cmd.assert().success().stdout(predicate::str::contains("item completed"));
+    cmd.assert()
+        .success()
+        .stdout(predicate::str::contains("item completed"));
 }
 
 #[test]
@@ -35,5 +37,7 @@ fn complete_action_failed() {
     let mut cmd = Command::cargo_bin("todo_cli").unwrap();
 
     cmd.arg("complete").arg("diferente");
-    cmd.assert().success().stdout(predicate::str::contains(" not found"));
+    cmd.assert()
+        .success()
+        .stdout(predicate::str::contains(" not found"));
 }
